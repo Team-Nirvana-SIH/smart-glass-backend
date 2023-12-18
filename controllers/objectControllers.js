@@ -2,12 +2,12 @@ const asyncHandler = require("express-async-handler");
 const { constants } = require("../helper/constants");
 
 //@desc Register New Guide
-//@route POST /api/guide
+//@route POST /api/objectRoutes
 //@access
 const fetchDescription = asyncHandler(async (req, res) => {
   try {
     //error handling for empty fields
-    const { id } = req.body;
+    const { id } = req.params;
     if (!id) {
       res.status(constants.VALIDATION_ERROR);
       throw new Error("Invalid QR code");
