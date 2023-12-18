@@ -21,4 +21,4 @@ const objectSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Objects", objectSchema, "objects");
+module.exports = mongoose.model("Object", objectSchema, "smartGlass");

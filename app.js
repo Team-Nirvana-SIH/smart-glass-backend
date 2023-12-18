@@ -4,7 +4,7 @@ const textToSpeech = require("@google-cloud/text-to-speech");
 require("dotenv").config();
 const fs = require("fs");
 const { exec } = require("child_process");
-const Objects = require('./models/objectModels')
+const Objects = require("./models/objectModels");
 
 const textToSpeech = asyncHandler(async (req, res) => {
   try {
@@ -49,7 +49,7 @@ const textToSpeech = asyncHandler(async (req, res) => {
         console.error("Error occurred:", err);
       }
     }
-    convertTextToMp3();
+    // convertTextToMp3();
     //   const speech = require("@google-cloud/text-to-speech");
   } catch (err) {
     res.status(constants.SERVER_ERROR);
