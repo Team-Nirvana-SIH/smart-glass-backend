@@ -2,7 +2,7 @@ const asyncHandler = require("express-async-handler");
 const { constants } = require("../helper/constants");
 
 //@desc Register New Guide
-//@route POST /api/objectRoutes
+//@route GET /api/objectRoutes
 //@access
 const fetchDescription = asyncHandler(async (req, res) => {
   try {
