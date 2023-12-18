@@ -11,6 +11,8 @@ app.use(express.json());
 
 
 // -------------------------------------------------
+
+app.use("/api/object", require("./routes/objectRoutes"));
 app.use(errorHandler);
 app.listen(port, () => {
   console.log(`server is running on port ${port}...`);
