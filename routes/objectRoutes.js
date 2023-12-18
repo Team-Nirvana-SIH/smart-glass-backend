@@ -1,7 +1,8 @@
+const asyncHandler = require("express-async-handler");
 const express = require("express");
 const router = express.Router();
 const  {fetchDescription}  = require("../controllers/objectControllers");
 
-router.route("/:id").post(fetchDescription);
+router.get("/:id", asyncHandler(fetchDescription));
 
 module.exports = router;
