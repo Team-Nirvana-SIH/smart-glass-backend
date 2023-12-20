@@ -98,60 +98,60 @@ const registerPlace = asyncHandler(async (req, res) => {
 //@route GET /api/objectRoutes
 //@access
 
-// Create a new streamingRecognize request
-const request = {
-  config: {
-    encoding: "LINEAR16",
-    sampleRateHertz: 16000,
-    languageCode: "en-US",
-  },
-  interimResults: true,
-};
+// // Create a new streamingRecognize request
+// const request = {
+//   config: {
+//     encoding: "LINEAR16",
+//     sampleRateHertz: 16000,
+//     languageCode: "en-US",
+//   },
+//   interimResults: true,
+// };
 
-// Stream the audio data to Google Cloud Speech API
-const recognizeStream = client
-  .streamingRecognize(request)
-  .on("error", console.error)
-  .on("data", (data) => {
-    const transcription = data.results
-      .map((result) => result.alternatives[0].transcript)
-      .join("\n");
-    console.log(`Transcription: ${transcription}`);
-  });
+// // Stream the audio data to Google Cloud Speech API
+// const recognizeStream = client
+//   .streamingRecognize(request)
+//   .on("error", console.error)
+//   .on("data", (data) => {
+//     const transcription = data.results
+//       .map((result) => result.alternatives[0].transcript)
+//       .join("\n");
+//     console.log(`Transcription: ${transcription}`);
+//   });
 
-// Start recording audio from the microphone
-const recording = record.start({
-  sampleRateHertz: 16000,
-  threshold: 0,
-  verbose: false,
-});
+// // Start recording audio from the microphone
+// const recording = record.start({
+//   sampleRateHertz: 16000,
+//   threshold: 0,
+//   verbose: false,
+// });
 
-let isSilent = false;
-let silentTimer;
+// let isSilent = false;
+// let silentTimer;
 
-// Function to stop recording and end recognition stream on continuous silence
-const stopRecognitionOnSilence = () => {
-  record.stop();
-  recognizeStream.end();
-  clearTimeout(silentTimer);
-};
+// // Function to stop recording and end recognition stream on continuous silence
+// const stopRecognitionOnSilence = () => {
+//   record.stop();
+//   recognizeStream.end();
+//   clearTimeout(silentTimer);
+// };
 
-// Pipe the microphone input to the recognition stream
-recording
-  .on("data", (data) => {
-    // Check for silence
-    const silent = !data.some((v) => v !== 0);
-    if (silent !== isSilent) {
-      isSilent = silent;
-      if (isSilent) {
-        // Start a timer to detect continuous silence
-        silentTimer = setTimeout(stopRecognitionOnSilence, 2000); // Adjust the duration as needed
-      } else {
-        // If sound is detected, clear the timer
-        clearTimeout(silentTimer);
-      }
-    }
-  })
-  .pipe(recognizeStream);
+// // Pipe the microphone input to the recognition stream
+// recording
+//   .on("data", (data) => {
+//     // Check for silence
+//     const silent = !data.some((v) => v !== 0);
+//     if (silent !== isSilent) {
+//       isSilent = silent;
+//       if (isSilent) {
+//         // Start a timer to detect continuous silence
+//         silentTimer = setTimeout(stopRecognitionOnSilence, 2000); // Adjust the duration as needed
+//       } else {
+//         // If sound is detected, clear the timer
+//         clearTimeout(silentTimer);
+//       }
+//     }
+//   })
+//   .pipe(recognizeStream);
 
 module.exports = { fetchDescription, registerPlace, startSpeechRecognition };
