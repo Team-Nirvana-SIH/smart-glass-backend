@@ -4,6 +4,12 @@ const textToSpeech = require("@google-cloud/text-to-speech");
 require("dotenv").config();
 const { exec } = require("child_process");
 const Object = require("../models/objectModels");
+const { record } = require("node-record-lpcm16");
+
+const speech = require("@google-cloud/speech");
+
+const { SpeechClient } = require("@google-cloud/speech").v1p1beta1;
+const client = new SpeechClient();
 
 //@desc Register New Guide
 //@route GET /api/objectRoutes
@@ -22,7 +28,7 @@ const fetchDescription = asyncHandler(async (req, res) => {
 
     console.log(newObject);
 
-    const client = new textToSpeech.TextToSpeechClient();
+    const client = new speech.SpeechClient(); // Change this line
 
     async function convertTextToMp3() {
       if (!newObject) {
@@ -35,7 +41,7 @@ const fetchDescription = asyncHandler(async (req, res) => {
 
       const request = {
         input: { text: text },
-        voice: { languageCode: "en-US", ssmlGender: "NEUTRAL" },
+        voice: { languageCode: "en-IN", ssmlGender: "NEUTRAL" },
         audioConfig: { audioEncoding: "MP3" },
       };
 
@@ -88,4 +94,64 @@ const registerPlace = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { fetchDescription, registerPlace };
+//@desc Register New Guide
+//@route GET /api/objectRoutes
+//@access
+
+// Create a new streamingRecognize request
+const request = {
+  config: {
+    encoding: "LINEAR16",
+    sampleRateHertz: 16000,
+    languageCode: "en-US",
+  },
+  interimResults: true,
+};
+
+// Stream the audio data to Google Cloud Speech API
+const recognizeStream = client
+  .streamingRecognize(request)
+  .on("error", console.error)
+  .on("data", (data) => {
+    const transcription = data.results
+      .map((result) => result.alternatives[0].transcript)
+      .join("\n");
+    console.log(`Transcription: ${transcription}`);
+  });
+
+// Start recording audio from the microphone
+const recording = record.start({
+  sampleRateHertz: 16000,
+  threshold: 0,
+  verbose: false,
+});
+
+let isSilent = false;
+let silentTimer;
+
+// Function to stop recording and end recognition stream on continuous silence
+const stopRecognitionOnSilence = () => {
+  record.stop();
+  recognizeStream.end();
+  clearTimeout(silentTimer);
+};
+
+// Pipe the microphone input to the recognition stream
+recording
+  .on("data", (data) => {
+    // Check for silence
+    const silent = !data.some((v) => v !== 0);
+    if (silent !== isSilent) {
+      isSilent = silent;
+      if (isSilent) {
+        // Start a timer to detect continuous silence
+        silentTimer = setTimeout(stopRecognitionOnSilence, 2000); // Adjust the duration as needed
+      } else {
+        // If sound is detected, clear the timer
+        clearTimeout(silentTimer);
+      }
+    }
+  })
+  .pipe(recognizeStream);
+
+module.exports = { fetchDescription, registerPlace, startSpeechRecognition };
