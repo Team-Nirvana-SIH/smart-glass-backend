@@ -154,4 +154,4 @@ const registerPlace = asyncHandler(async (req, res) => {
 //   })
 //   .pipe(recognizeStream);
 
-module.exports = { fetchDescription, registerPlace, startSpeechRecognition };
+module.exports = { fetchDescription, registerPlace };
